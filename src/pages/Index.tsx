@@ -3,12 +3,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Upload, Image as ImageIcon } from "lucide-react";
+import { Camera, Upload, Image as ImageIcon, LogIn } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import ImageGallery from "@/components/ImageGallery";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, profile } = useAuth();
+
+  const canUpload = user && (profile?.role === 'admin' || profile?.role === 'super_admin');
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -33,11 +38,29 @@ const Index = () => {
                 View Portfolio
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-              <Upload className="w-5 h-5 mr-2" />
-              Upload Images
-            </Button>
+            {canUpload ? (
+              <Link to="/upload">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                  <Upload className="w-5 h-5 mr-2" />
+                  Upload Images
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                  <LogIn className="w-5 h-5 mr-2" />
+                  {user ? 'Access Restricted' : 'Sign In to Upload'}
+                </Button>
+              </Link>
+            )}
           </div>
+          {user && (
+            <div className="mt-6">
+              <Badge variant="outline" className="text-sm">
+                Welcome back, {profile?.full_name || 'User'}!
+              </Badge>
+            </div>
+          )}
         </div>
       </section>
 

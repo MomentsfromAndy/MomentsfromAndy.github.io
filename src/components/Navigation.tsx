@@ -1,105 +1,149 @@
 
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Camera, Upload } from "lucide-react";
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  NavigationMenu, 
+  NavigationMenuContent, 
+  NavigationMenuItem, 
+  NavigationMenuLink, 
+  NavigationMenuList, 
+  NavigationMenuTrigger 
+} from '@/components/ui/navigation-menu';
+import { useAuth } from '@/contexts/AuthContext';
+import { Camera, User, LogOut, Settings, Upload } from 'lucide-react';
 
 const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
 
-  const navItems = [
-    { href: "/", label: "Home" },
-    { href: "/projects", label: "Projects" },
-    { href: "/gallery", label: "Gallery" },
-  ];
+  const isActive = (path: string) => location.pathname === path;
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'super_admin': return 'bg-red-500 text-white';
+      case 'admin': return 'bg-blue-500 text-white';
+      case 'user': return 'bg-green-500 text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b border-border z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <Camera className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-200" />
-            <span className="text-xl font-bold tracking-tight">PhotoFolio</span>
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <Camera className="w-8 h-8 text-primary" />
+            <span className="text-xl font-bold">PhotoFolio</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Main Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  location.pathname === item.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <Button size="sm" className="ml-4">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload
-            </Button>
+            <Link 
+              to="/" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/projects" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/projects') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Projects
+            </Link>
+            <Link 
+              to="/gallery" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/gallery') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Gallery
+            </Link>
+            <Link 
+              to="/about" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/about') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              About
+            </Link>
+            <Link 
+              to="/contact" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/contact') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Contact
+            </Link>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-muted-foreground"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                />
-              </svg>
-            </Button>
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger className="flex items-center space-x-2">
+                      <User className="w-4 h-4" />
+                      <span className="hidden sm:inline">{profile?.full_name || 'User'}</span>
+                      <Badge className={`ml-2 text-xs ${getRoleBadgeColor(profile?.role || 'visitor')}`}>
+                        {profile?.role?.replace('_', ' ').toUpperCase() || 'VISITOR'}
+                      </Badge>
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-64 p-4">
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium">{profile?.email}</div>
+                          <div className="text-xs text-muted-foreground">
+                            Role: {profile?.role?.replace('_', ' ').toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="mt-4 space-y-2">
+                          {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                            <>
+                              <NavigationMenuLink asChild>
+                                <Link to="/admin" className="flex items-center space-x-2 w-full p-2 text-sm hover:bg-accent rounded">
+                                  <Settings className="w-4 h-4" />
+                                  <span>Admin Panel</span>
+                                </Link>
+                              </NavigationMenuLink>
+                              <NavigationMenuLink asChild>
+                                <Link to="/upload" className="flex items-center space-x-2 w-full p-2 text-sm hover:bg-accent rounded">
+                                  <Upload className="w-4 h-4" />
+                                  <span>Upload Images</span>
+                                </Link>
+                              </NavigationMenuLink>
+                            </>
+                          )}
+                          <button
+                            onClick={signOut}
+                            className="flex items-center space-x-2 w-full p-2 text-sm hover:bg-accent rounded text-left"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm">
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-border">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "block px-3 py-2 text-base font-medium transition-colors hover:text-primary",
-                    location.pathname === item.href
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="px-3 py-2">
-                <Button size="sm" className="w-full">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
