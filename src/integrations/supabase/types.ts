@@ -72,6 +72,7 @@ export type Database = {
           description: string | null
           id: string
           project_id: string | null
+          storage_path: string | null
           tags: string[] | null
           title: string | null
           uploaded_by: string | null
@@ -82,6 +83,7 @@ export type Database = {
           description?: string | null
           id?: string
           project_id?: string | null
+          storage_path?: string | null
           tags?: string[] | null
           title?: string | null
           uploaded_by?: string | null
@@ -92,6 +94,7 @@ export type Database = {
           description?: string | null
           id?: string
           project_id?: string | null
+          storage_path?: string | null
           tags?: string[] | null
           title?: string | null
           uploaded_by?: string | null
@@ -213,8 +216,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_featured_slideshow_images: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          title: string
+          url: string
+          storage_path: string
+          project_id: string
+          project_title: string
+        }[]
+      }
       get_user_role: {
-        Args: { user_id: string }
+        Args: Record<PropertyKey, never> | { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
       has_project_access: {
