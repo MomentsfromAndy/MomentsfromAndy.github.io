@@ -36,15 +36,6 @@ const ProtectedImage: React.FC<ProtectedImageProps> = ({
 
   const protectedStyle: React.CSSProperties = {
     userSelect: 'none',
-    WebkitUserSelect: 'none',
-    MozUserSelect: 'none',
-    msUserSelect: 'none',
-    WebkitTouchCallout: 'none',
-    WebkitUserDrag: 'none',
-    KhtmlUserDrag: 'none',
-    MozUserDrag: 'none',
-    OUserDrag: 'none',
-    userDrag: 'none',
     ...style
   };
 
@@ -57,6 +48,7 @@ const ProtectedImage: React.FC<ProtectedImageProps> = ({
       onDragStart={handleDragStart}
       onClick={onClick}
       style={protectedStyle}
+      draggable={false}
       {...props}
     />
   );
