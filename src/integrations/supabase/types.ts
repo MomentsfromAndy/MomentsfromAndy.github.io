@@ -66,39 +66,99 @@ export type Database = {
         }
         Relationships: []
       }
-      images: {
+      image_reactions: {
         Row: {
           created_at: string | null
-          description: string | null
           id: string
+          image_id: string | null
+          reaction_type: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_id?: string | null
+          reaction_type: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_id?: string | null
+          reaction_type?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_reactions_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "image_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      images: {
+        Row: {
+          aperture: string | null
+          camera_model: string | null
+          created_at: string | null
+          description: string | null
+          focal_length: string | null
+          id: string
+          iso: string | null
+          location: string | null
           project_id: string | null
           storage_path: string | null
           tags: string[] | null
           title: string | null
           uploaded_by: string | null
           url: string
+          view_count: number | null
         }
         Insert: {
+          aperture?: string | null
+          camera_model?: string | null
           created_at?: string | null
           description?: string | null
+          focal_length?: string | null
           id?: string
+          iso?: string | null
+          location?: string | null
           project_id?: string | null
           storage_path?: string | null
           tags?: string[] | null
           title?: string | null
           uploaded_by?: string | null
           url: string
+          view_count?: number | null
         }
         Update: {
+          aperture?: string | null
+          camera_model?: string | null
           created_at?: string | null
           description?: string | null
+          focal_length?: string | null
           id?: string
+          iso?: string | null
+          location?: string | null
           project_id?: string | null
           storage_path?: string | null
           tags?: string[] | null
           title?: string | null
           uploaded_by?: string | null
           url?: string
+          view_count?: number | null
         }
         Relationships: [
           {
@@ -227,6 +287,14 @@ export type Database = {
           project_title: string
         }[]
       }
+      get_image_reaction_counts: {
+        Args: { image_id: string }
+        Returns: {
+          like_count: number
+          love_count: number
+          wow_count: number
+        }[]
+      }
       get_user_role: {
         Args: Record<PropertyKey, never> | { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -238,6 +306,10 @@ export type Database = {
           required_access: Database["public"]["Enums"]["access_type"]
         }
         Returns: boolean
+      }
+      increment_image_view_count: {
+        Args: { image_id: string }
+        Returns: undefined
       }
     }
     Enums: {
