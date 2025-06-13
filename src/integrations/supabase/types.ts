@@ -39,6 +39,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          setting_key: string
+          setting_value: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          setting_key: string
+          setting_value: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string | null
@@ -115,6 +139,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           focal_length: string | null
+          folder: string | null
           id: string
           iso: string | null
           location: string | null
@@ -132,6 +157,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           focal_length?: string | null
+          folder?: string | null
           id?: string
           iso?: string | null
           location?: string | null
@@ -149,6 +175,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           focal_length?: string | null
+          folder?: string | null
           id?: string
           iso?: string | null
           location?: string | null
@@ -276,6 +303,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_setting: {
+        Args: { key: string }
+        Returns: string
+      }
       get_featured_slideshow_images: {
         Args: Record<PropertyKey, never>
         Returns: {

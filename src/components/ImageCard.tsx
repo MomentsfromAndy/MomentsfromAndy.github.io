@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Heart, Star, Zap } from 'lucide-react';
+import { Eye, Heart, ThumbsUp, Clap } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -180,7 +180,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick }) => {
                     : 'text-muted-foreground hover:text-blue-500'
                 }`}
               >
-                <Heart className="h-4 w-4" />
+                <ThumbsUp className="h-4 w-4" />
                 <span className="text-sm">{reactionCounts.like_count}</span>
               </button>
               
@@ -192,7 +192,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick }) => {
                     : 'text-muted-foreground hover:text-red-500'
                 }`}
               >
-                <Star className="h-4 w-4" />
+                <Heart className="h-4 w-4" />
                 <span className="text-sm">{reactionCounts.love_count}</span>
               </button>
               
@@ -204,7 +204,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick }) => {
                     : 'text-muted-foreground hover:text-yellow-500'
                 }`}
               >
-                <Zap className="h-4 w-4" />
+                <Clap className="h-4 w-4" />
                 <span className="text-sm">{reactionCounts.wow_count}</span>
               </button>
             </div>

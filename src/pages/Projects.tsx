@@ -1,8 +1,10 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import { Camera, Image as ImageIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Project {
   id: string;
@@ -173,7 +175,9 @@ const Projects = () => {
                       <p className="text-muted-foreground leading-relaxed mb-6">
                         {project.description}
                       </p>
-                      <Button variant="outline">View Project</Button>
+                      <Link to={`/projects/${project.id}`}>
+                        <Button variant="outline">View Project</Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
@@ -221,9 +225,11 @@ const Projects = () => {
                     <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                       {project.description}
                     </p>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
+                    <Link to={`/projects/${project.id}`}>
+                      <Button variant="outline" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

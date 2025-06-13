@@ -13,12 +13,26 @@ import {
 } from '@/components/ui/navigation-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { Camera, User, LogOut, Settings, Upload } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Navigation = () => {
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Fetch site name from admin settings
+  const { data: siteName = 'PhotoFolio' } = useQuery({
+    queryKey: ['admin-setting', 'site_name'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_admin_setting', {
+        key: 'site_name'
+      });
+      if (error) throw error;
+      return data || 'PhotoFolio';
+    },
+  });
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -36,7 +50,7 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <Camera className="w-8 h-8 text-primary" />
-            <span className="text-xl font-bold">PhotoFolio</span>
+            <span className="text-xl font-bold">{siteName}</span>
           </Link>
 
           {/* Main Navigation */}
@@ -108,7 +122,7 @@ const Navigation = () => {
                           {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                             <>
                               <NavigationMenuLink asChild>
-                                <Link to="/admin" className="flex items-center space-x-2 w-full p-2 text-sm hover:bg-accent rounded">
+                                <Link to="/admin.andy" className="flex items-center space-x-2 w-full p-2 text-sm hover:bg-accent rounded">
                                   <Settings className="w-4 h-4" />
                                   <span>Admin Panel</span>
                                 </Link>
