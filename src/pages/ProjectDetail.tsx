@@ -68,8 +68,8 @@ const ProjectDetail = () => {
       return data.map(img => ({
         id: img.id,
         url: img.url,
-        title: img.title,
-        category: img.category || 'General',
+        title: img.title || 'Untitled',
+        category: project?.category || 'General', // Use project category
         camera_model: img.camera_model,
         aperture: img.aperture,
         focal_length: img.focal_length,
@@ -79,7 +79,7 @@ const ProjectDetail = () => {
         folder: img.folder || 'General'
       })) as ImageData[];
     },
-    enabled: !!projectId,
+    enabled: !!projectId && !!project,
   });
 
   // Fetch admin settings for images per folder
