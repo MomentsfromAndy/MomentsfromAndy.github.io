@@ -63,7 +63,21 @@ const ProjectDetail = () => {
         .eq('project_id', projectId)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data as ImageData[];
+      
+      // Transform database data to match ImageData interface
+      return data.map(img => ({
+        id: img.id,
+        url: img.url,
+        title: img.title,
+        category: img.category || 'General',
+        camera_model: img.camera_model,
+        aperture: img.aperture,
+        focal_length: img.focal_length,
+        iso: img.iso,
+        location: img.location,
+        view_count: img.view_count,
+        folder: img.folder || 'General'
+      })) as ImageData[];
     },
     enabled: !!projectId,
   });

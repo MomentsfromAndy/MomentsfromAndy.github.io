@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import { X, Eye, Heart, ThumbsUp, Clap } from 'lucide-react';
+import { X, Eye, Heart, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -263,7 +262,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                         : 'text-white/60 hover:text-yellow-400'
                     }`}
                   >
-                    <Clap className="h-5 w-5" />
+                    <Heart className="h-5 w-5" />
                     <span className="text-sm">{reactionCounts.wow_count}</span>
                   </button>
                 </div>
