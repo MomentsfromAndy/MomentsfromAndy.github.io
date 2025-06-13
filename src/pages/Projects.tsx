@@ -1,10 +1,11 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import { Camera, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Project {
   id: string;
@@ -12,87 +13,68 @@ interface Project {
   subtitle: string;
   description: string;
   category: string;
-  images: string[];
   year: string;
   featured: boolean;
 }
 
 const Projects = () => {
-  const projects: Project[] = [
-    {
-      id: "1",
-      title: "People of Kathmandu",
-      subtitle: "City life through architectural perspectives",
-      description:
-        "A comprehensive exploration of urban environments, capturing the intersection between human-made structures and natural light.",
-      category: "Lifestyle",
-      images: [
-        "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop&crop=center",
-      ],
-      year: "2024",
-      featured: true,
+  // Fetch projects from database
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as Project[];
     },
-    {
-      id: "2",
-      title: "Natural Wonders",
-      subtitle: "Capturing the raw beauty of untouched landscapes",
-      description:
-        "A journey through some of the world's most breathtaking natural locations, from mountain peaks to serene valleys.",
-      category: "Landscape",
-      images: [
-        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800&h=600&fit=crop&crop=center",
-      ],
-      year: "2024",
-      featured: true,
+  });
+
+  // Fetch sample images for each project
+  const { data: projectImages = {} } = useQuery({
+    queryKey: ['project-images-sample'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('images')
+        .select('id, url, project_id')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      
+      // Group images by project_id and take first 2 images per project
+      const imagesByProject: Record<string, string[]> = {};
+      data.forEach(img => {
+        if (!imagesByProject[img.project_id]) {
+          imagesByProject[img.project_id] = [];
+        }
+        if (imagesByProject[img.project_id].length < 2) {
+          imagesByProject[img.project_id].push(img.url);
+        }
+      });
+      return imagesByProject;
     },
-    {
-      id: "3",
-      title: "Portrait Series",
-      subtitle: "Human stories told through intimate portraiture",
-      description:
-        "An ongoing series exploring human emotion and character through carefully crafted portrait photography.",
-      category: "Portrait",
-      images: [
-        "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop&crop=center",
-      ],
-      year: "2023",
-      featured: false,
-    },
-    {
-      id: "4",
-      title: "Digital Abstracts",
-      subtitle: "Where technology meets artistic vision",
-      description:
-        "Experimental work exploring the visual possibilities of digital photography and post-processing techniques.",
-      category: "Abstract",
-      images: [
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop&crop=center",
-      ],
-      year: "2023",
-      featured: false,
-    },
-    {
-      id: "5",
-      title: "Forest Chronicles",
-      subtitle: "The hidden world within ancient woodlands",
-      description:
-        "An intimate look at forest ecosystems, capturing the interplay of light, shadow, and natural textures.",
-      category: "Nature",
-      images: [
-        "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=800&h=600&fit=crop&crop=center",
-        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=600&fit=crop&crop=center",
-      ],
-      year: "2023",
-      featured: true,
-    },
-  ];
+    enabled: projects.length > 0,
+  });
 
   const featuredProjects = projects.filter((project) => project.featured);
   const otherProjects = projects.filter((project) => !project.featured);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-24 px-4">
+          <div className="max-w-7xl mx-auto text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 rounded w-1/4 mx-auto mb-6"></div>
+              <div className="h-12 bg-gray-300 rounded w-1/2 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,128 +97,159 @@ const Projects = () => {
       </section>
 
       {/* Featured Projects */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center mb-12">
-            <Camera className="w-8 h-8 mr-3 text-primary" />
-            <h2 className="text-3xl md:text-4xl font-bold">Featured Work</h2>
-          </div>
+      {featuredProjects.length > 0 && (
+        <section className="py-16 px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center mb-12">
+              <Camera className="w-8 h-8 mr-3 text-primary" />
+              <h2 className="text-3xl md:text-4xl font-bold">Featured Work</h2>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            {featuredProjects.map((project, index) => (
-              <Card
-                key={project.id}
-                className={`group overflow-hidden border-none shadow-lg hover:shadow-2xl transition-all duration-500 ${
-                  index === 0 ? "lg:col-span-2" : ""
-                }`}
-              >
-                <CardContent className="p-0">
-                  <div
-                    className={`grid ${
-                      index === 0 ? "md:grid-cols-2" : "grid-cols-1"
-                    } gap-0`}
-                  >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+              {featuredProjects.map((project, index) => (
+                <Card
+                  key={project.id}
+                  className={`group overflow-hidden border-none shadow-lg hover:shadow-2xl transition-all duration-500 ${
+                    index === 0 ? "lg:col-span-2" : ""
+                  }`}
+                >
+                  <CardContent className="p-0">
                     <div
-                      className={`aspect-[4/3] ${
-                        index === 0 ? "md:aspect-[3/2]" : ""
-                      } overflow-hidden`}
+                      className={`grid ${
+                        index === 0 ? "md:grid-cols-2" : "grid-cols-1"
+                      } gap-0`}
                     >
-                      <img
-                        src={project.images[0]}
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
+                      <div
+                        className={`aspect-[4/3] ${
+                          index === 0 ? "md:aspect-[3/2]" : ""
+                        } overflow-hidden`}
+                      >
+                        {projectImages[project.id]?.[0] ? (
+                          <img
+                            src={projectImages[project.id][0]}
+                            alt={project.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <Camera className="w-16 h-16 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        className={`p-8 ${
+                          index === 0 ? "flex flex-col justify-center" : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 mb-4">
+                          <Badge variant="secondary">{project.category}</Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {project.year}
+                          </span>
+                        </div>
+                        <h3
+                          className={`font-bold mb-2 ${
+                            index === 0 ? "text-3xl md:text-4xl" : "text-2xl"
+                          }`}
+                        >
+                          {project.title}
+                        </h3>
+                        <p
+                          className={`text-primary font-medium mb-4 ${
+                            index === 0 ? "text-lg" : ""
+                          }`}
+                        >
+                          {project.subtitle}
+                        </p>
+                        <p className="text-muted-foreground leading-relaxed mb-6">
+                          {project.description}
+                        </p>
+                        <Link to={`/projects/${project.id}`}>
+                          <Button variant="outline">View Project</Button>
+                        </Link>
+                      </div>
                     </div>
-                    <div
-                      className={`p-8 ${
-                        index === 0 ? "flex flex-col justify-center" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <Badge variant="secondary">{project.category}</Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Other Projects */}
+      {otherProjects.length > 0 && (
+        <section className="py-16 px-4 bg-secondary/20">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center mb-12">
+              <ImageIcon className="w-8 h-8 mr-3 text-primary" />
+              <h2 className="text-3xl md:text-4xl font-bold">
+                Additional Projects
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {otherProjects.map((project) => (
+                <Card
+                  key={project.id}
+                  className="group overflow-hidden border-none shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2"
+                >
+                  <CardContent className="p-0">
+                    <div className="aspect-[4/3] overflow-hidden">
+                      {projectImages[project.id]?.[0] ? (
+                        <img
+                          src={projectImages[project.id][0]}
+                          alt={project.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <Camera className="w-16 h-16 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Badge variant="outline">{project.category}</Badge>
                         <span className="text-sm text-muted-foreground">
                           {project.year}
                         </span>
                       </div>
-                      <h3
-                        className={`font-bold mb-2 ${
-                          index === 0 ? "text-3xl md:text-4xl" : "text-2xl"
-                        }`}
-                      >
-                        {project.title}
-                      </h3>
-                      <p
-                        className={`text-primary font-medium mb-4 ${
-                          index === 0 ? "text-lg" : ""
-                        }`}
-                      >
+                      <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+                      <p className="text-primary font-medium text-sm mb-3">
                         {project.subtitle}
                       </p>
-                      <p className="text-muted-foreground leading-relaxed mb-6">
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                         {project.description}
                       </p>
                       <Link to={`/projects/${project.id}`}>
-                        <Button variant="outline">View Project</Button>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
                       </Link>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Other Projects */}
-      <section className="py-16 px-4 bg-secondary/20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center mb-12">
-            <ImageIcon className="w-8 h-8 mr-3 text-primary" />
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Additional Projects
+      {/* Empty state */}
+      {projects.length === 0 && (
+        <section className="py-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <Camera className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              No Projects Yet
             </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Projects will appear here once they are created by administrators.
+            </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {otherProjects.map((project) => (
-              <Card
-                key={project.id}
-                className="group overflow-hidden border-none shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2"
-              >
-                <CardContent className="p-0">
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img
-                      src={project.images[0]}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Badge variant="outline">{project.category}</Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {project.year}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-                    <p className="text-primary font-medium text-sm mb-3">
-                      {project.subtitle}
-                    </p>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {project.description}
-                    </p>
-                    <Link to={`/projects/${project.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Call to Action */}
       <section className="py-20 px-4">
