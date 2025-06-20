@@ -110,6 +110,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick }) => {
   });
 
   const handleReactionToggle = (e: React.MouseEvent, reactionType: string) => {
+    e.preventDefault();
     e.stopPropagation();
     const isRemoving = userReactions.includes(reactionType);
     toggleReactionMutation.mutate({ reactionType, isRemoving });
@@ -173,36 +174,42 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick }) => {
             
             <div className="flex items-center space-x-3">
               <button
+                type="button"
                 onClick={(e) => handleReactionToggle(e, 'like')}
-                className={`flex items-center space-x-1 transition-colors ${
+                className={`flex items-center space-x-1 transition-colors cursor-pointer hover:scale-110 ${
                   userReactions.includes('like') 
                     ? 'text-blue-500' 
                     : 'text-muted-foreground hover:text-blue-500'
                 }`}
+                disabled={toggleReactionMutation.isPending}
               >
                 <ThumbsUp className="h-4 w-4" />
                 <span className="text-sm">{reactionCounts.like_count}</span>
               </button>
               
               <button
+                type="button"
                 onClick={(e) => handleReactionToggle(e, 'love')}
-                className={`flex items-center space-x-1 transition-colors ${
+                className={`flex items-center space-x-1 transition-colors cursor-pointer hover:scale-110 ${
                   userReactions.includes('love') 
                     ? 'text-red-500' 
                     : 'text-muted-foreground hover:text-red-500'
                 }`}
+                disabled={toggleReactionMutation.isPending}
               >
                 <Heart className="h-4 w-4" />
                 <span className="text-sm">{reactionCounts.love_count}</span>
               </button>
               
               <button
+                type="button"
                 onClick={(e) => handleReactionToggle(e, 'wow')}
-                className={`flex items-center space-x-1 transition-colors ${
+                className={`flex items-center space-x-1 transition-colors cursor-pointer hover:scale-110 ${
                   userReactions.includes('wow') 
                     ? 'text-yellow-500' 
                     : 'text-muted-foreground hover:text-yellow-500'
                 }`}
+                disabled={toggleReactionMutation.isPending}
               >
                 <Heart className="h-4 w-4" />
                 <span className="text-sm">{reactionCounts.wow_count}</span>
