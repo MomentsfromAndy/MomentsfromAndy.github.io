@@ -40,7 +40,7 @@ const Auth = () => {
           <div className="flex justify-center mb-4">
             <Camera className="w-12 h-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">PhotoFolio</CardTitle>
+          <CardTitle className="text-2xl font-bold">Andy Shoots</CardTitle>
           <CardDescription>
             Sign in to access your photography portfolio
           </CardDescription>

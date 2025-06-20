@@ -30,8 +30,8 @@ const Index = () => {
                 <Camera className="w-16 h-16 mx-auto lg:mx-0 mb-6 text-primary opacity-80" />
               </div>
               <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-left">
-                Visual
-                <span className="block text-primary">Storytelling</span>
+                Moments
+                <span className="block text-primary">From Andy</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed text-left">
                 Capturing moments that matter through the lens of creativity and passion

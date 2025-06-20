@@ -23,14 +23,14 @@ const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   // Fetch site name from admin settings
-  const { data: siteName = 'PhotoFolio' } = useQuery({
+  const { data: siteName = 'Andy Shoots' } = useQuery({
     queryKey: ['admin-setting', 'site_name'],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_admin_setting', {
         key: 'site_name'
       });
       if (error) throw error;
-      return data || 'PhotoFolio';
+      return data || 'Andy Shoots';
     },
   });
 
